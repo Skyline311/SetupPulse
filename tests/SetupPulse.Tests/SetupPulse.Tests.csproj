@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="MQTTnet.Server" Version="5.2.0.1603" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.13" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SetupPulse.Core\SetupPulse.Core.csproj" />
+    <!-- Test CCD position planning without invoking Windows APIs. -->
+    <Compile Include="../../src/SetupPulse.App/Displays.cs" Link="Native/Displays.cs" />
+    <Compile Include="../../src/SetupPulse.App/DisplayModes.cs" Link="Native/DisplayModes.cs" />
+    <Compile Include="../../src/SetupPulse.App/HomeAssistantMqtt.cs" Link="Integration/HomeAssistantMqtt.cs" />
+    <Compile Include="../../src/SetupPulse.App/HomeAssistantSettingsStore.cs" Link="Integration/HomeAssistantSettingsStore.cs" />
+    <Compile Include="../../src/SetupPulse.App/GitHubUpdates.cs" Link="Integration/GitHubUpdates.cs" />
+    <Compile Include="../../src/SetupPulse.App/UpdatesService.cs" Link="Integration/UpdatesService.cs" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,50 @@
+name: Bug report
+description: Report a reproducible problem with SetupPulse.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        English and German reports are welcome. Review diagnostics and screenshots for personal information before attaching them. Security vulnerabilities should follow SECURITY.md.
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      placeholder: "For example: 0.1.5, built from source"
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Windows and devices
+      description: Windows build, GPU/audio driver versions, and relevant device types. Device serial numbers are not needed.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: For shortcuts, say whether you used the number row or number pad.
+      placeholder: |
+        1. Open ...
+        2. Press ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include the exact error and whether automatic recovery completed, if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Optional screenshots or redacted diagnostics

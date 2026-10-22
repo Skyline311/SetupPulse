@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\SetupPulse.Core\SetupPulse.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" />
+    <PackageReference Include="MQTTnet" Version="5.2.0.1603" />
+    <PackageReference Include="NAudio.Wasapi" Version="3.2.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>SetupPulse</AssemblyName>
+    <Product>SetupPulse</Product>
+    <Authors>Skyline311</Authors>
+    <Copyright>Copyright (c) 2026 Skyline311</Copyright>
+    <RepositoryUrl>https://github.com/Skyline311/SetupPulse</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Description>Switch saved Windows display layouts and audio devices with shortcuts.</Description>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <PublishTrimmed>false</PublishTrimmed>
+    <Version>0.4.2</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\ui\dist\**\*" LogicalName="Web/%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\..\THIRD-PARTY-LICENSES.txt" LogicalName="Licenses" />
+    <EmbeddedResource Include="..\..\LICENSE" LogicalName="OwnLicense" />
+    <EmbeddedResource Include="app.ico" LogicalName="AppIcon" />
+  </ItemGroup>
+  <Target Name="RemoveUnusedWebViewWpfReference" BeforeTargets="ResolveAssemblyReferences">
+    <ItemGroup><Reference Remove="@(Reference)" Condition="'%(Reference.Filename)' == 'Microsoft.Web.WebView2.Wpf'" /></ItemGroup>
+  </Target>
+
+</Project>

@@ -1,0 +1,90 @@
+# .NET build output and symbols
+**/bin/
+**/obj/
+*.dll
+*.exe
+*.pdb
+*.nupkg
+*.snupkg
+
+# Node/Vite dependencies, bundles, and caches
+**/node_modules/
+ui/dist/
+.npm/
+.pnpm-store/
+*.tsbuildinfo
+
+# Test and coverage output
+**/TestResults/
+**/test-results/
+**/playwright-report/
+**/blob-report/
+**/coverage/
+*.coverage
+*.coveragexml
+
+# Local build packages, diagnostics, and scratch work
+/artifacts/
+/publish/
+/out/
+/diagnostics/
+/work/
+/tmp/
+/temp/
+*.log
+*.tmp
+*.bak
+*.old
+
+# Private session notes, local validation history, and branding exploration
+/dev/
+/SESSION.md
+/VALIDATION.md
+/DESIGN-DIRECTIONS.md
+/design/
+.codex/
+.agents/
+.playwright-mcp/
+
+# Runtime data and exported profiles at the repository root
+/settings.json
+/settings.json.*
+/home-assistant.json
+/home-assistant.json.*
+/updates.json
+/updates.json.*
+/update-result.json
+/update-result.json.*
+/Updates/
+.setuppulse-update-*/
+/transaction.json
+/last-good.json
+/watchdog-ready-*.json
+/SetupPulse-Profile*.json
+/SetupSwitch-Profile*.json
+
+# Credentials and local environment configuration
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pfx
+*.p12
+*.pem
+*.key
+*.snk
+secrets.json
+NuGet.Config.local
+
+# Editor and OS state
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.sln.docstates
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+Desktop.ini
