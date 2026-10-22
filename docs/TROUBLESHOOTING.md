@@ -33,9 +33,7 @@ For black screens or flickering after standby, record the time and check the Win
 
 A new or changed monitor setup must be confirmed within 90 seconds. Without confirmation, SetupPulse attempts to restore the state saved immediately before that switch. Successfully tested layouts switch directly on later uses.
 
-Live vertical alignment keeps the original layout across repeated Y changes. Each accepted change renews the 90-second confirmation period. Cancel or expiry restores the original layout and leaves audio untouched.
-
-Live alignment preserves the current display paths, resolution, rotation, refresh timings, and scaling while changing Y positions. It works on monitors currently active in Windows. Displays excluded from the edited setup remain locked and unchanged; enabling/disabling displays in the editor only changes the setup draft until that setup is activated. An aborted alignment returns to the preserved draft with a visible error.
+Live height adjustment is temporarily disabled. Set monitor X/Y positions in the setup editor, save, and activate the setup instead. The normal confirmation and recovery flow still applies.
 
 A separate recovery process starts before the device change. Closing the app does not immediately end this process. Signing out or restarting the PC does end it; a pending test remains available for manual recovery when the app starts again.
 

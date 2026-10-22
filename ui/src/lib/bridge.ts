@@ -1,4 +1,5 @@
 import packageInfo from "../../package.json";
+import features from "../../../features.json";
 export const appVersion = packageInfo.version;
 
 export type DisplaySetting = {
@@ -243,6 +244,11 @@ export async function call<T = unknown>(
   method: string,
   payload: unknown = null,
 ): Promise<T> {
+  if (
+    !features.liveMonitorAlignment &&
+    (method === "beginAlignment" || method === "updateAlignment")
+  )
+    throw new Error("Der Live-Höhenabgleich ist vorübergehend deaktiviert.");
   if (!window.chrome?.webview) return demoCall(method, payload) as T;
   const id = crypto.randomUUID();
   return new Promise<T>((resolve, reject) => {

@@ -40,6 +40,7 @@ import { Switch } from "@/components/ui/switch";
 import { ResolutionPicker } from "@/components/ResolutionPicker";
 import { RefreshRatePicker } from "@/components/RefreshRatePicker";
 import { LiveAlignment } from "@/components/LiveAlignment";
+import features from "../../features.json";
 import { AudioMixer } from "@/components/AudioMixer";
 import { QuickMixer } from "@/components/QuickMixer";
 import { BluetoothAdapters } from "@/components/BluetoothAdapters";
@@ -1170,25 +1171,27 @@ export default function App() {
                       setProfile((p) => (p ? { ...p, monitors } : null))
                     }
                   />
-                  <div className="stack gap-2">
-                    <Button
-                      className="self-start"
-                      variant="outline"
-                      disabled={disabled || current.length < 2}
-                      onClick={() => {
-                        setAlignmentError(null);
-                        void action("beginAlignment");
-                      }}
-                    >
-                      Monitorhöhe live abgleichen
-                    </Button>
-                    <p className="helper">
-                      Verschiebt die in Windows aktiven Monitore dieses
-                      Entwurfs. Andere aktive Displays bleiben unverändert.
-                      Bestätigte Höhen werden in diesen Entwurf übernommen;
-                      anschließend das Setup speichern.
-                    </p>
-                  </div>
+                  {features.liveMonitorAlignment && (
+                    <div className="stack gap-2">
+                      <Button
+                        className="self-start"
+                        variant="outline"
+                        disabled={disabled || current.length < 2}
+                        onClick={() => {
+                          setAlignmentError(null);
+                          void action("beginAlignment");
+                        }}
+                      >
+                        Monitorhöhe live abgleichen
+                      </Button>
+                      <p className="helper">
+                        Verschiebt die in Windows aktiven Monitore dieses
+                        Entwurfs. Andere aktive Displays bleiben unverändert.
+                        Bestätigte Höhen werden in diesen Entwurf übernommen;
+                        anschließend das Setup speichern.
+                      </p>
+                    </div>
+                  )}
                   <p className="helper">
                     Ziehen oder Positionen eingeben. Anordnungen müssen an einer
                     Kante verbunden sein. Hauptmonitor: 0 / 0.
@@ -1868,7 +1871,7 @@ export default function App() {
           )}
         </DialogContent>
       </Dialog>
-      {state.pending?.liveAlignment && (
+      {features.liveMonitorAlignment && state.pending?.liveAlignment && (
         <LiveAlignment
           key={state.pending.id}
           transaction={state.pending}
@@ -1897,7 +1900,12 @@ export default function App() {
           preview={(monitors) => <MonitorPreview monitors={monitors} />}
         />
       )}
-      <Dialog open={!!state.pending && !state.pending.liveAlignment}>
+      <Dialog
+        open={
+          !!state.pending &&
+          (!state.pending.liveAlignment || !features.liveMonitorAlignment)
+        }
+      >
         <DialogContent
           showCloseButton={false}
           onEscapeKeyDown={(e) => e.preventDefault()}

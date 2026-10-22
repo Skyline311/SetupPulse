@@ -21,7 +21,6 @@ _Beispiel mit simulierten Geräten. Neue Installationen beginnen ohne gespeicher
 - **Audiofavoriten:** Wiedergabe-, Mikrofon- und Kommunikationsgeräte wählen, optional mit Lautstärke und Stummschaltung. Unabhängig nutzen oder mit einem Setup verknüpfen.
 - **Audio-Mixer:** Lautstärke und Stummschaltung für Geräte und Apps, gruppierte App-Sitzungen, Pegelanzeige und Ausgabezuordnung pro App. Schnellmixer per Tray-Klick; optional Lautstärke per Tray-Mausrad und eigene Mixer-Shortcuts.
 - **Globale Shortcuts:** Setups und Audiofavoriten wechseln, ohne die App zu öffnen. Nummernblock und obere Ziffernreihe werden unterschieden.
-- **Monitorhöhe live abgleichen:** die vertikale Position ändern und den Mausübergang zwischen den Bildschirmen direkt prüfen. [Beispiel ansehen](docs/images/live-alignment-demo.png).
 - **Dunkles Tray-Menü:** aktuell passende Setups, Audiofavoriten und ihre Shortcuts erkennen.
 - **Home Assistant:** optionale MQTT-Erkennung, separate Setup-/Audio-Auswahl per Dashboard oder Zigbee-Taster-Automation und Rückmeldung zu Wechseln und Fehlern. [Einrichtung](docs/HOME-ASSISTANT.md).
 - **Updates:** direkt im Tool nach stabilen GitHub Releases suchen und sie mit Paketprüfung und erhaltenen Einstellungen installieren. [Update-Anleitung](docs/UPDATES.md).
@@ -43,7 +42,7 @@ Mit einem fertigen Paket:
 
 Bereits bestätigte Monitoranordnungen wechseln später direkt. Beispielsweise verwendet `Strg+Alt+Num2` den Nummernblock, `Strg+Alt+2` die obere Ziffernreihe.
 
-Für unterschiedlich hohe Bildschirme bearbeitest du unter **Setups** ein Setup und wählst **Monitorhöhe live abgleichen**. Negatives Y verschiebt einen Monitor nach oben, positives nach unten. Prüfe den Mausübergang und wähle **Anordnung behalten**. Abbrechen oder 90 Sekunden ohne weitere Änderung oder Bestätigung stellen die ursprüngliche Anordnung wieder her. Bestätigte Höhen werden in den Setup-Entwurf übernommen; wähle **Setup speichern**, um sie später wieder aufzurufen.
+Für unterschiedlich hohe Bildschirme bearbeitest du unter **Setups** die X-/Y-Positionen. Negatives Y verschiebt einen Monitor nach oben, positives Y nach unten. Speichere und aktiviere das Setup, um die Anordnung anzuwenden. Der Live-Höhenabgleich ist vorübergehend nicht verfügbar.
 
 Das Schließen des Fensters lässt die App normalerweise im Tray laufen. Ein einzelner Linksklick öffnet nach der kurzen Doppelklick-Frist ein kleines Schnellmixer-Fenster am Tray; ein Doppelklick öffnet das Hauptfenster. Escape oder ein Klick außerhalb schließt den Schnellmixer; **Voller Mixer** öffnet **Audio-Mixer**. Vollständig beenden über **Tray → Beenden**. Autostart öffnet die App ohne Setup-Wechsel; auch beim Aufwachen wird kein Setup automatisch angewendet.
 
@@ -51,7 +50,7 @@ Unter **Audio-Mixer** regelst du Geräte und laufende Apps oder wählst deren Au
 
 ## Stand und Hilfe
 
-**Frühe Vorschau · 0.4.3.** Builds sind nicht signiert und benötigen breitere Hardwaretests. Wiederherstellung hängt von Windows, Treibern und angeschlossenen Geräten ab. Die Oberfläche ist derzeit deutschsprachig. Unter Einstellungen werden physische Bluetooth-Adapter und ihr Windows-Status angezeigt; Adapter-Umschaltung ist nicht enthalten.
+**Frühe Vorschau · 0.4.4.** Builds sind nicht signiert und benötigen breitere Hardwaretests. Wiederherstellung hängt von Windows, Treibern und angeschlossenen Geräten ab. Die Oberfläche ist derzeit deutschsprachig. Unter Einstellungen werden physische Bluetooth-Adapter und ihr Windows-Status angezeigt; Adapter-Umschaltung ist nicht enthalten.
 
 Hinweise zu Gerätekompatibilität, Einstellungen und Wiederherstellung stehen unter [Fehlersuche](docs/TROUBLESHOOTING.md) auf Englisch. Für Fehlerberichte die Issue-Vorlagen verwenden; Sicherheitsmeldungen sind in [SECURITY.md](SECURITY.md) beschrieben.
 

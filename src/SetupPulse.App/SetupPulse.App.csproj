@@ -30,7 +30,7 @@
     <SelfContained>true</SelfContained>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <PublishTrimmed>false</PublishTrimmed>
-    <Version>0.4.3</Version>
+    <Version>0.4.4</Version>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\..\ui\dist\**\*" LogicalName="Web/%(RecursiveDir)%(Filename)%(Extension)" />

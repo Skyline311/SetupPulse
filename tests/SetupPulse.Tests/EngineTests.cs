@@ -177,17 +177,39 @@ public sealed class EngineTests : IDisposable
         Assert.Throws<InvalidDataException>(() => Validation.Settings(s));
     }
     [Fact] public void InvalidAudioVolumeIsRejected() => Assert.Throws<InvalidDataException>(() => Validation.Settings(Settings.Empty with { AudioFavorites = [Favorite with { Output = new("headset", float.NaN) }] }));
+    [Fact] public void DisabledAlignmentCommandsDoNotReadOrWriteHardwareOrTransactions()
+    {
+        Assert.False(ProductFeatures.LiveMonitorAlignment);
+        var hardware = AlignmentHardware(); int watchdogs = 0;
+        var engine = new SwitchEngine(hardware, Store, _ => watchdogs++);
+        Assert.Throws<NotSupportedException>(() => engine.BeginAlignment());
+        Assert.Throws<NotSupportedException>(() => engine.UpdateAlignment("disabled", hardware.Displays));
+        Assert.Equal(0, hardware.DisplayReads); Assert.Equal(0, hardware.DisplayWrites);
+        Assert.Equal(0, watchdogs); Assert.Null(engine.Pending);
+        Assert.Null(Store.Read<Transaction>("transaction.json"));
+    }
+    [Fact] public void DisabledFeatureStillAllowsRecoveryOfAnOlderPendingAlignment()
+    {
+        var hardware = AlignmentHardware();
+        var older = new SwitchEngine(hardware, Store, _ => { }, liveAlignmentEnabled: true);
+        var transaction = older.BeginAlignment();
+        older.UpdateAlignment(transaction.Id, [Screen(), Screen("right", 1920, false) with { Y = 60 }]);
+        var current = new SwitchEngine(hardware, Store, _ => { });
+        current.Rollback(current.Pending!);
+        Assert.Equal(0, hardware.Displays[1].Y); Assert.Null(current.Pending);
+        Assert.Equal(0, hardware.Restores);
+    }
     static FakeHardware AlignmentHardware() => new() { Displays = [Screen(), Screen("right", 1920, false)] };
     [Fact] public void AlignmentStartsWatchdogBeforeAnyDisplayWrite()
     {
         var hardware = AlignmentHardware(); int watchdogs = 0;
-        var engine = new SwitchEngine(hardware, Store, _ => { watchdogs++; Assert.Equal(0, hardware.DisplayWrites); });
+        var engine = new SwitchEngine(hardware, Store, _ => { watchdogs++; Assert.Equal(0, hardware.DisplayWrites); }, liveAlignmentEnabled: true);
         var transaction = engine.BeginAlignment();
         Assert.True(transaction.LiveAlignment); Assert.Equal(1, watchdogs); Assert.Equal(0, hardware.DisplayWrites);
     }
     [Fact] public void RepeatedAlignmentUpdatesCancelToOriginalAndNeverWriteAudio()
     {
-        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => { });
+        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => { }, liveAlignmentEnabled: true);
         var transaction = engine.BeginAlignment();
         engine.UpdateAlignment(transaction.Id, [Screen(), Screen("right", 1920, false) with { Y = 80 }]);
         engine.UpdateAlignment(transaction.Id, [Screen(), Screen("right", 1920, false) with { Y = -120 }]);
@@ -199,7 +221,7 @@ public sealed class EngineTests : IDisposable
     }
     [Fact] public void AlignmentConfirmationKeepsLatestLayoutWithoutUpdatingProfiles()
     {
-        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => { });
+        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => { }, liveAlignmentEnabled: true);
         var transaction = engine.BeginAlignment();
         engine.UpdateAlignment(transaction.Id, [Screen(), Screen("right", 1920, false) with { Y = 100 }]);
         Assert.Null(engine.Confirm(transaction.Id).ProfileId);
@@ -208,7 +230,7 @@ public sealed class EngineTests : IDisposable
     }
     [Fact] public void AlignmentRejectsNonYChangesBeforeTouchingHardware()
     {
-        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => { });
+        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => { }, liveAlignmentEnabled: true);
         var transaction = engine.BeginAlignment();
         Assert.Throws<InvalidDataException>(() => engine.UpdateAlignment(transaction.Id, [Screen(), Screen("right", 1920, false) with { Scale = 125 }]));
         Assert.Throws<InvalidDataException>(() => engine.UpdateAlignment(transaction.Id, [Screen()]));
@@ -216,7 +238,7 @@ public sealed class EngineTests : IDisposable
     }
     [Fact] public void ExpiredAlignmentCannotBeRevivedByAnUpdate()
     {
-        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => { });
+        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => { }, liveAlignmentEnabled: true);
         var transaction = engine.BeginAlignment();
         Store.Write("transaction.json", transaction with { Deadline = DateTimeOffset.UtcNow.AddSeconds(-1) });
         Assert.Throws<InvalidOperationException>(() => engine.UpdateAlignment(transaction.Id, [Screen(), Screen("right", 1920, false) with { Y = 30 }]));
@@ -224,20 +246,20 @@ public sealed class EngineTests : IDisposable
     }
     [Fact] public void AlignmentFailureRestoresOriginalLayoutWithoutRestoringAudio()
     {
-        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => { });
+        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => { }, liveAlignmentEnabled: true);
         var transaction = engine.BeginAlignment(); hardware.FailDisplay = true;
         Assert.Throws<Exception>(() => engine.UpdateAlignment(transaction.Id, [Screen(), Screen("right", 1920, false) with { Y = 30 }]));
         Assert.Equal(0, hardware.Displays[1].Y); Assert.Equal(0, hardware.Restores); Assert.Null(engine.Pending);
     }
     [Fact] public void AlignmentWatchdogFailureLeavesNoPendingSessionOrDeviceChanges()
     {
-        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => throw new Exception("watchdog unavailable"));
+        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => throw new Exception("watchdog unavailable"), liveAlignmentEnabled: true);
         Assert.Throws<Exception>(() => engine.BeginAlignment());
         Assert.Null(engine.Pending); Assert.Equal(0, hardware.DisplayWrites); Assert.Equal(0, hardware.Restores);
     }
     [Fact] public async Task AlignmentCannotReplaceANormalPendingMonitorTest()
     {
-        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => { });
+        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => { }, liveAlignmentEnabled: true);
         var transaction = (await engine.Apply(new("profile", "Desk", hardware.Displays), null))!;
         Assert.Throws<InvalidOperationException>(() => engine.BeginAlignment());
         Assert.Throws<InvalidOperationException>(() => engine.UpdateAlignment(transaction.Id, hardware.Displays));
@@ -245,7 +267,7 @@ public sealed class EngineTests : IDisposable
     }
     [Fact] public void WatchdogRechecksAnExtendedAlignmentDeadlineBeforeRollback()
     {
-        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => { });
+        var hardware = AlignmentHardware(); var engine = new SwitchEngine(hardware, Store, _ => { }, liveAlignmentEnabled: true);
         var transaction = engine.BeginAlignment();
         var updated = engine.UpdateAlignment(transaction.Id, [Screen(), Screen("right", 1920, false) with { Y = 60 }]);
         var stale = updated with { Deadline = DateTimeOffset.UtcNow.AddSeconds(-1) };
@@ -253,13 +275,13 @@ public sealed class EngineTests : IDisposable
         Store.Write("transaction.json", updated with { Deadline = DateTimeOffset.UtcNow.AddSeconds(90) });
         Assert.False(engine.RollbackIfExpired(stale.Id)); Assert.Equal(60, hardware.Displays[1].Y);
         Store.Write("transaction.json", stale);
-        var watchdog = new SwitchEngine(hardware, Store, _ => { });
+        var watchdog = new SwitchEngine(hardware, Store, _ => { }, liveAlignmentEnabled: true);
         Assert.True(watchdog.RollbackIfExpired(stale.Id)); Assert.Equal(0, hardware.Displays[1].Y); Assert.Equal(0, hardware.Restores);
     }
     [Fact] public void AlignmentAndRollbackBypassFullModeAndDpiChanges()
     {
         var hardware = AlignmentHardware(); hardware.UnsupportedDpi = true;
-        var engine = new SwitchEngine(hardware, Store, _ => { });
+        var engine = new SwitchEngine(hardware, Store, _ => { }, liveAlignmentEnabled: true);
         var transaction = engine.BeginAlignment();
         engine.UpdateAlignment(transaction.Id, [Screen(), Screen("right", 1920, false) with { Y = -90 }]);
         Assert.Equal(-90, hardware.Displays[1].Y);

@@ -1,6 +1,6 @@
 namespace SetupPulse.Core;
 
-public sealed class SwitchEngine(IHardware hardware, Store store, Action<string> startWatchdog)
+public sealed class SwitchEngine(IHardware hardware, Store store, Action<string> startWatchdog, bool? liveAlignmentEnabled = null)
 {
     readonly SemaphoreSlim gate = new(1, 1);
     public bool Busy { get; private set; }
@@ -35,6 +35,8 @@ public sealed class SwitchEngine(IHardware hardware, Store store, Action<string>
     });
     T AlignmentLocked<T>(Func<T> action)
     {
+        if (!(liveAlignmentEnabled ?? ProductFeatures.LiveMonitorAlignment))
+            throw new NotSupportedException("Der Live-Höhenabgleich ist vorübergehend deaktiviert. Positionen können im Setup über X/Y gespeichert werden.");
         if (!gate.Wait(0)) throw new InvalidOperationException("Ein Wechsel läuft bereits.");
         Busy = true;
         try { return action(); }

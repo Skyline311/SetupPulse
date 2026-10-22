@@ -9,4 +9,7 @@
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\features.json" LogicalName="ProductFeatures" />
+  </ItemGroup>
 </Project>

@@ -2,6 +2,11 @@
 
 These entries describe local development versions. They are not announcements of published GitHub releases.
 
+## 0.4.4 - 2026-10-22
+
+- Temporarily disable live monitor-height adjustment in the editor and native/browser commands. Keep saved X/Y placement, normal profile switching and recovery available. Preserve the implementation and regression coverage for later reactivation.
+- This feature withdrawal is not a confirmed fix for display wake failures.
+
 ## 0.4.3 - 2026-10-22
 
 - Re-selecting a setup whose monitor settings already match Windows now skips native display validation, mode application and DPI changes. Linked audio still applies, and confirmation and audio rollback remain available.
