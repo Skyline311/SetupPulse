@@ -49,19 +49,23 @@ public sealed class SwitchEngine(IHardware hardware, Store store, Action<string>
             if (Pending != null) throw new InvalidOperationException("Bitte den laufenden Monitortest bestätigen oder zurücksetzen.");
             var displays = profile?.Monitors;
             var inventory = displays == null ? new Inventory([], hardware.AudioInventory()) : hardware.Inventory();
-            if (displays != null) { Validation.Displays(displays); hardware.ValidateDisplays(displays); }
+            if (displays != null) Validation.Displays(displays);
             var before = displays == null ? null : inventory.Displays.Where(x => x.Active).Select(x => x.Current!).ToList();
+            bool changeDisplays = displays != null && !SameDisplaySettings(displays, before!);
+            // Re-selecting the current profile must not rebuild native signal timings or DPI.
+            if (changeDisplays) hardware.ValidateDisplays(displays!);
             var hash = displays == null ? null : Validation.MonitorHash(displays);
             bool needsTest = displays != null && profile!.VerifiedHash != hash;
             // All display transitions are guarded, including previously verified profiles.
-            var transaction = new Transaction(Guid.NewGuid().ToString("N"), "pending", DateTimeOffset.UtcNow.AddSeconds(90), before, inventory.Audio, profile?.Id, hash, RequestedDisplays: displays);
+            // Only snapshot displays for rollback when this transaction will actually change them.
+            var transaction = new Transaction(Guid.NewGuid().ToString("N"), "pending", DateTimeOffset.UtcNow.AddSeconds(90), changeDisplays ? before : null, inventory.Audio, profile?.Id, hash, RequestedDisplays: displays);
             if (before != null && store.Read<Transaction>("last-good.json") == null) store.Write("last-good.json", transaction with { Phase = "confirmed", Displays = before, ProfileId = null, Hash = Validation.MonitorHash(before) });
             store.Write("transaction.json", transaction);
             bool mutated = false;
             try
             {
                 startWatchdog(transaction.Id);
-                if (displays != null) { mutated = true; hardware.ApplyDisplays(displays); hardware.VerifyDisplays(displays); }
+                if (changeDisplays) { mutated = true; hardware.ApplyDisplays(displays!); hardware.VerifyDisplays(displays!); }
                 if (favorite != null)
                 {
                     var until = DateTimeOffset.UtcNow.AddSeconds(displays != null ? 15 : 0);
@@ -79,7 +83,7 @@ public sealed class SwitchEngine(IHardware hardware, Store store, Action<string>
                     return ready;
                 }
                 store.Write("transaction.json", transaction with { Phase = "confirmed" });
-                if (displays != null) store.Write("last-good.json", transaction with { Displays = displays, Audio = hardware.Inventory().Audio });
+                if (displays != null) store.Write("last-good.json", transaction with { Displays = displays, Audio = hardware.AudioInventory() });
                 return null;
             }
             catch (Exception e)
@@ -91,6 +95,15 @@ public sealed class SwitchEngine(IHardware hardware, Store store, Action<string>
         }
         finally { Busy = false; gate.Release(); }
     }
+    static bool SameDisplaySettings(List<DisplaySetting> requested, List<DisplaySetting> current)
+        => requested.Count == current.Count && requested.All(target => current.Any(actual =>
+            actual != null && actual.DeviceId.Equals(target.DeviceId, StringComparison.OrdinalIgnoreCase)
+            && actual.Width == target.Width && actual.Height == target.Height
+            && actual.X == target.X && actual.Y == target.Y && actual.Rotation == target.Rotation
+            && actual.Scale == target.Scale && actual.Primary == target.Primary
+            // Inventory rounds native refresh rates to three decimals; do not conflate59.94 and60Hz.
+            && double.IsFinite(actual.RefreshRate) && double.IsFinite(target.RefreshRate)
+            && Math.Round(actual.RefreshRate * 1000) == Math.Round(target.RefreshRate * 1000)));
     public Transaction Confirm(string id)
     {
         var t = Pending ?? throw new InvalidOperationException("Kein Monitortest aktiv.");

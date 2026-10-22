@@ -51,7 +51,7 @@ Under **Audio-Mixer**, adjust devices and running apps or choose an app's output
 
 ## Status and help
 
-**Early preview · 0.4.2.** Builds are unsigned and need broader hardware testing. Recovery depends on Windows, drivers, and connected devices. The current interface is in German. Settings show physical Bluetooth adapters and their Windows status; adapter switching is not included.
+**Early preview · 0.4.3.** Builds are unsigned and need broader hardware testing. Recovery depends on Windows, drivers, and connected devices. The current interface is in German. Settings show physical Bluetooth adapters and their Windows status; adapter switching is not included.
 
 For device compatibility, settings, and recovery, see [Troubleshooting](docs/TROUBLESHOOTING.md). Report problems using the repository's issue templates; security reports are covered by [SECURITY.md](SECURITY.md).
 

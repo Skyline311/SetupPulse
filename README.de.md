@@ -51,7 +51,7 @@ Unter **Audio-Mixer** regelst du Geräte und laufende Apps oder wählst deren Au
 
 ## Stand und Hilfe
 
-**Frühe Vorschau · 0.4.2.** Builds sind nicht signiert und benötigen breitere Hardwaretests. Wiederherstellung hängt von Windows, Treibern und angeschlossenen Geräten ab. Die Oberfläche ist derzeit deutschsprachig. Unter Einstellungen werden physische Bluetooth-Adapter und ihr Windows-Status angezeigt; Adapter-Umschaltung ist nicht enthalten.
+**Frühe Vorschau · 0.4.3.** Builds sind nicht signiert und benötigen breitere Hardwaretests. Wiederherstellung hängt von Windows, Treibern und angeschlossenen Geräten ab. Die Oberfläche ist derzeit deutschsprachig. Unter Einstellungen werden physische Bluetooth-Adapter und ihr Windows-Status angezeigt; Adapter-Umschaltung ist nicht enthalten.
 
 Hinweise zu Gerätekompatibilität, Einstellungen und Wiederherstellung stehen unter [Fehlersuche](docs/TROUBLESHOOTING.md) auf Englisch. Für Fehlerberichte die Issue-Vorlagen verwenden; Sicherheitsmeldungen sind in [SECURITY.md](SECURITY.md) beschrieben.
 

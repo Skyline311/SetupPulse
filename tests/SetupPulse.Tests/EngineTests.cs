@@ -11,12 +11,12 @@ public sealed class EngineTests : IDisposable
     {
         public int DisplayWrites, DisplayReads, AudioWrites, Restores, MissingAttempts;
         public bool FailDisplay, FailAudio, UnsupportedDpi, FailRestore;
-        public int PositionWrites, FullApplyAttempts, DisplayDelayMilliseconds;
+        public int PositionWrites, FullApplyAttempts, DisplayDelayMilliseconds, DisplayValidations;
         public List<DisplaySetting> Displays = [Screen()];
         public List<AudioDevice> Audio = [new("speakers", "Speakers", false, true, true, true, 50, false)];
         public Inventory Inventory() { DisplayReads++; return new(Displays.Select(d => new DisplayDevice(d.DeviceId, d.Name, true, true, d)).ToList(), Audio.ToList()); }
         public List<AudioDevice> AudioInventory() => Audio.ToList();
-        public void ValidateDisplays(List<DisplaySetting> displays) => Validation.Displays(displays);
+        public void ValidateDisplays(List<DisplaySetting> displays) { DisplayValidations++; Validation.Displays(displays); }
         public void ApplyDisplays(List<DisplaySetting> displays) { FullApplyAttempts++; if (UnsupportedDpi) throw new NotSupportedException("DPI-Bereich wird nicht unterstützt."); Thread.Sleep(DisplayDelayMilliseconds); DisplayWrites++; Displays = displays; }
         public void ValidateDisplayPositions(List<DisplaySetting> displays) => Validation.Displays(displays);
         public void ApplyDisplayPositions(List<DisplaySetting> displays) { PositionWrites++; DisplayWrites++; Displays = displays; }
@@ -272,9 +272,86 @@ public sealed class EngineTests : IDisposable
         var hardware = new FakeHardware { DisplayDelayMilliseconds = 300 };
         DateTimeOffset initialDeadline = default;
         var engine = new SwitchEngine(hardware, Store, _ => initialDeadline = Store.Read<Transaction>("transaction.json")!.Deadline);
-        var ready = (await engine.Apply(new("profile", "Desk", [Screen()]), null))!;
+        var ready = (await engine.Apply(new("profile", "Desk", [Screen("tv")]), null))!;
         Assert.True(ready.Deadline - initialDeadline >= TimeSpan.FromMilliseconds(200));
         Assert.Equal(ready.Deadline, engine.Pending!.Deadline);
+    }
+    [Fact] public async Task ReactivatingCurrentVerifiedProfileDoesNotValidateOrWriteDisplaysButAppliesAudio()
+    {
+        var hardware = AlignmentHardware(); var displays = hardware.Displays.AsEnumerable().Reverse()
+            .Select(d => d with { DeviceId = d.DeviceId.ToUpperInvariant(), Name = "Renamed" }).ToList();
+        var engine = new SwitchEngine(hardware, Store, _ => { });
+        var profile = new SetupProfile("office", "Office", displays, VerifiedHash: Validation.MonitorHash(displays));
+        Assert.Null(await engine.Apply(profile, Favorite));
+        Assert.Equal(0, hardware.DisplayValidations); Assert.Equal(0, hardware.FullApplyAttempts);
+        Assert.Equal(0, hardware.DisplayWrites); Assert.Equal(1, hardware.AudioWrites);
+        Assert.Equal("confirmed", Store.Read<Transaction>("transaction.json")!.Phase);
+        Assert.Null(Store.Read<Transaction>("transaction.json")!.Displays);
+        Assert.Equal(displays, Store.Read<Transaction>("last-good.json")!.Displays);
+        Assert.Equal(1, hardware.DisplayReads);
+    }
+    [Fact] public async Task AudioFailureOnCurrentProfileNeverReappliesMonitorSnapshot()
+    {
+        var hardware = new FakeHardware { FailAudio = true };
+        var engine = new SwitchEngine(hardware, Store, _ => { });
+        await Assert.ThrowsAsync<Exception>(() => engine.Apply(new("office", "Office", [Screen()]), Favorite));
+        Assert.Equal(0, hardware.DisplayValidations); Assert.Equal(0, hardware.DisplayWrites);
+        Assert.Equal(1, hardware.Restores); Assert.Equal("rolledBack", Store.Read<Transaction>("transaction.json")!.Phase);
+    }
+    [Fact] public async Task UnverifiedMatchingProfileCanStillBeConfirmedWithoutDisplayWrites()
+    {
+        var hardware = new FakeHardware(); var engine = new SwitchEngine(hardware, Store, _ => { });
+        var pending = await engine.Apply(new("office", "Office", [Screen()]), null);
+        Assert.NotNull(pending); Assert.Null(pending.Displays);
+        engine.Confirm(pending.Id);
+        Assert.Null(engine.Pending); Assert.Equal(0, hardware.DisplayWrites);
+        Assert.Equal(0, hardware.DisplayValidations); Assert.Equal("office", Store.Read<Transaction>("last-good.json")!.ProfileId);
+    }
+    [Fact] public async Task ExpiredMatchingProfileConfirmationDoesNotWriteDisplays()
+    {
+        var hardware = new FakeHardware(); var engine = new SwitchEngine(hardware, Store, _ => { });
+        var pending = (await engine.Apply(new("office", "Office", [Screen()]), null))!;
+        Store.Write("transaction.json", pending with { Deadline = DateTimeOffset.UtcNow.AddSeconds(-1) });
+        Assert.True(engine.RollbackIfExpired(pending.Id));
+        Assert.Equal(0, hardware.DisplayWrites); Assert.Equal(0, hardware.DisplayValidations);
+    }
+    [Theory]
+    [InlineData("resolution")][InlineData("height")][InlineData("position")]
+    [InlineData("rotation")][InlineData("scale")][InlineData("refresh")][InlineData("device")]
+    [InlineData("count")]
+    public async Task RealDisplayDifferencesStillApplyNativeConfiguration(string difference)
+    {
+        var hardware = new FakeHardware(); var requested = Screen();
+        requested = difference switch {
+            "resolution" => requested with { Width = 2560 },
+            "height" => requested with { Height = 1440 },
+            "rotation" => requested with { Rotation = 3 },
+            "scale" => requested with { Scale = 125 },
+            "refresh" => requested with { RefreshRate = 59.94 },
+            "device" => requested with { DeviceId = "tv" },
+            _ => requested
+        };
+        if (difference == "position") {
+            hardware.Displays.Add(Screen("right", 1920, false));
+        }
+        var displays = difference == "position" ? new List<DisplaySetting> { requested, Screen("right", 1920, false) with { Y = 100 } }
+            : difference == "count" ? [requested, Screen("right", 1920, false)] : [requested];
+        var engine = new SwitchEngine(hardware, Store, _ => { });
+        Assert.NotNull(await engine.Apply(new("office", "Office", displays), null));
+        Assert.Equal(1, hardware.DisplayValidations); Assert.Equal(1, hardware.FullApplyAttempts);
+        Assert.Equal(1, hardware.DisplayWrites);
+    }
+    [Theory]
+    [InlineData(59.999, true)]
+    [InlineData(60.001, true)]
+    [InlineData(60.0004, false)]
+    public async Task NoOpComparisonUsesTheSameMillihertzResolutionAsNativeApplication(double refresh, bool changes)
+    {
+        var hardware = new FakeHardware(); var engine = new SwitchEngine(hardware, Store, _ => { });
+        var requested = new List<DisplaySetting> { Screen() with { RefreshRate = refresh } };
+        await engine.Apply(new("office", "Office", requested, VerifiedHash: Validation.MonitorHash(requested)), null);
+        Assert.Equal(changes ? 1 : 0, hardware.FullApplyAttempts);
+        Assert.Equal(changes ? 1 : 0, hardware.DisplayValidations);
     }
     public void Dispose() { if (Directory.Exists(folder)) Directory.Delete(folder, true); }
 }

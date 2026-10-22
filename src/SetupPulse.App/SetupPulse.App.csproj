@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\SetupPulse.Core\SetupPulse.Core.csproj" />
@@ -30,7 +30,7 @@
     <SelfContained>true</SelfContained>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <PublishTrimmed>false</PublishTrimmed>
-    <Version>0.4.2</Version>
+    <Version>0.4.3</Version>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\..\ui\dist\**\*" LogicalName="Web/%(RecursiveDir)%(Filename)%(Extension)" />

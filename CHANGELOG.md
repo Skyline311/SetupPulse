@@ -2,6 +2,11 @@
 
 These entries describe local development versions. They are not announcements of published GitHub releases.
 
+## 0.4.3 - 2026-10-22
+
+- Re-selecting a setup whose monitor settings already match Windows now skips native display validation, mode application and DPI changes. Linked audio still applies, and confirmation and audio rollback remain available.
+- This avoids unnecessary display reconfiguration; a fix for reported monitor wake timeouts has not yet been confirmed.
+
 ## 0.4.2 - 2026-10-22
 
 - Keep Home Assistant setup, device and favorite names selectable when they use any letter case of the reserved state "none".
