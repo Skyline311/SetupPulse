@@ -40,6 +40,7 @@ import { Switch } from "@/components/ui/switch";
 import { ResolutionPicker } from "@/components/ResolutionPicker";
 import { RefreshRatePicker } from "@/components/RefreshRatePicker";
 import { LiveAlignment } from "@/components/LiveAlignment";
+import features from "../../features.json";
 import { AudioMixer } from "@/components/AudioMixer";
 import { QuickMixer } from "@/components/QuickMixer";
 import { BluetoothAdapters } from "@/components/BluetoothAdapters";
@@ -1017,7 +1018,7 @@ export default function App() {
                     <div>
                       <strong>Deine Einstellungen</strong>
                       <p className="text-xs">
-                        Autostart startet im Tray, ohne Setup-Wechsel.
+                        Windows-Start und Startverhalten festlegen.
                       </p>
                     </div>
                     <Button
@@ -1170,25 +1171,27 @@ export default function App() {
                       setProfile((p) => (p ? { ...p, monitors } : null))
                     }
                   />
-                  <div className="stack gap-2">
-                    <Button
-                      className="self-start"
-                      variant="outline"
-                      disabled={disabled || current.length < 2}
-                      onClick={() => {
-                        setAlignmentError(null);
-                        void action("beginAlignment");
-                      }}
-                    >
-                      Monitorhöhe live abgleichen
-                    </Button>
-                    <p className="helper">
-                      Verschiebt die in Windows aktiven Monitore dieses
-                      Entwurfs. Andere aktive Displays bleiben unverändert.
-                      Bestätigte Höhen werden in diesen Entwurf übernommen;
-                      anschließend das Setup speichern.
-                    </p>
-                  </div>
+                  {features.liveMonitorAlignment && (
+                    <div className="stack gap-2">
+                      <Button
+                        className="self-start"
+                        variant="outline"
+                        disabled={disabled || current.length < 2}
+                        onClick={() => {
+                          setAlignmentError(null);
+                          void action("beginAlignment");
+                        }}
+                      >
+                        Monitorhöhe live abgleichen
+                      </Button>
+                      <p className="helper">
+                        Verschiebt die in Windows aktiven Monitore dieses
+                        Entwurfs. Andere aktive Displays bleiben unverändert.
+                        Bestätigte Höhen werden in diesen Entwurf übernommen;
+                        anschließend das Setup speichern.
+                      </p>
+                    </div>
+                  )}
                   <p className="helper">
                     Ziehen oder Positionen eingeben. Anordnungen müssen an einer
                     Kante verbunden sein. Hauptmonitor: 0 / 0.
@@ -1777,7 +1780,7 @@ export default function App() {
                 </select>
               </Field>
               <div className="row">
-                <label>Mit Windows im Tray starten</label>
+                <label>Mit Windows starten</label>
                 <Switch
                   aria-label="Autostart"
                   checked={preferences.startWithWindows}
@@ -1786,6 +1789,21 @@ export default function App() {
                   }
                 />
               </div>
+              <div className="row gap-3">
+                <label>Beim Windows-Start minimiert starten</label>
+                <Switch
+                  aria-label="Minimierter Windows-Start"
+                  disabled={!preferences.startWithWindows}
+                  checked={preferences.startMinimized ?? true}
+                  onCheckedChange={(on) =>
+                    setPreferences({ ...preferences, startMinimized: on })
+                  }
+                />
+              </div>
+              <p className="helper">
+                Bei aktivierter Option läuft SetupPulse nur im Infobereich neben
+                der Uhr. Beim manuellen Öffnen erscheint das Hauptfenster.
+              </p>
               <div className="row">
                 <label>Beim Schließen im Tray bleiben</label>
                 <Switch
@@ -1868,7 +1886,7 @@ export default function App() {
           )}
         </DialogContent>
       </Dialog>
-      {state.pending?.liveAlignment && (
+      {features.liveMonitorAlignment && state.pending?.liveAlignment && (
         <LiveAlignment
           key={state.pending.id}
           transaction={state.pending}
@@ -1897,7 +1915,12 @@ export default function App() {
           preview={(monitors) => <MonitorPreview monitors={monitors} />}
         />
       )}
-      <Dialog open={!!state.pending && !state.pending.liveAlignment}>
+      <Dialog
+        open={
+          !!state.pending &&
+          (!state.pending.liveAlignment || !features.liveMonitorAlignment)
+        }
+      >
         <DialogContent
           showCloseButton={false}
           onEscapeKeyDown={(e) => e.preventDefault()}

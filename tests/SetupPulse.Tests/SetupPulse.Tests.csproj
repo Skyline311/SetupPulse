@@ -29,6 +29,7 @@
     <Compile Include="../../src/SetupPulse.App/HomeAssistantSettingsStore.cs" Link="Integration/HomeAssistantSettingsStore.cs" />
     <Compile Include="../../src/SetupPulse.App/GitHubUpdates.cs" Link="Integration/GitHubUpdates.cs" />
     <Compile Include="../../src/SetupPulse.App/UpdatesService.cs" Link="Integration/UpdatesService.cs" />
+    <Compile Include="../../src/SetupPulse.App/StartupBehavior.cs" Link="Integration/StartupBehavior.cs" />
   </ItemGroup>
 
 </Project>

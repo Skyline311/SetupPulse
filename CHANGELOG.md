@@ -2,6 +2,26 @@
 
 These entries describe local development versions. They are not announcements of published GitHub releases.
 
+## 0.4.6 - 2026-10-29
+
+- Replace the tray arrows with the selected white Pulse/arrows artwork, based on the original SetupPulse app motif. Keep an SVG master and embed pre-rendered native icon frames for clear rendering at common notification-area sizes.
+
+## 0.4.5 - 2026-10-29
+
+- Use a transparent tray icon with white exchange arrows, matching the line style of Windows notification-area icons.
+- Add a separate preference for starting minimized with Windows. Keep existing users' tray-start behavior, open the main window on manual launch, and prevent the initial window flash during tray startup.
+- Repeated autostart or explicit tray launches leave an already running window as it is.
+
+## 0.4.4 - 2026-10-22
+
+- Temporarily disable live monitor-height adjustment in the editor and native/browser commands. Keep saved X/Y placement, normal profile switching and recovery available. Preserve the implementation and regression coverage for later reactivation.
+- This feature withdrawal is not a confirmed fix for display wake failures.
+
+## 0.4.3 - 2026-10-22
+
+- Re-selecting a setup whose monitor settings already match Windows now skips native display validation, mode application and DPI changes. Linked audio still applies, and confirmation and audio rollback remain available.
+- This avoids unnecessary display reconfiguration; a fix for reported monitor wake timeouts has not yet been confirmed.
+
 ## 0.4.2 - 2026-10-22
 
 - Keep Home Assistant setup, device and favorite names selectable when they use any letter case of the reserved state "none".

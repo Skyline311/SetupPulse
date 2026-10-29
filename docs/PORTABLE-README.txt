@@ -22,6 +22,10 @@ menu's "Beenden" item to exit before replacing the EXE. Settings are stored in
 %LOCALAPPDATA%\SetupSwitch, not next to the executable. The UI is currently German.
 The legacy SetupSwitch folder is retained so existing profiles and shortcuts work.
 
+Under Einstellungen -> Bearbeiten, enable Mit Windows starten and choose
+Beim Windows-Start minimiert starten to launch only in the notification area.
+Manual launches open the main window. The tray uses white exchange arrows.
+
 Check for public stable GitHub Releases under Einstellungen -> Updates. Optional
 startup checks only notify you; click Jetzt aktualisieren to download, verify and
 restart into a newer version. Profiles and credentials are kept. The app folder

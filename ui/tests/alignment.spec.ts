@@ -1,4 +1,13 @@
 import { test, expect, type Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
+const features = JSON.parse(
+  readFileSync(new URL("../../features.json", import.meta.url), "utf8"),
+);
+
+test.skip(
+  !features.liveMonitorAlignment,
+  "Live height alignment is temporarily disabled; retained for reactivation.",
+);
 
 test("monitors excluded from the setup stay locked and unchanged during live alignment", async ({
   page,

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\SetupPulse.Core\SetupPulse.Core.csproj" />
@@ -30,13 +30,14 @@
     <SelfContained>true</SelfContained>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <PublishTrimmed>false</PublishTrimmed>
-    <Version>0.4.2</Version>
+    <Version>0.4.6</Version>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\..\ui\dist\**\*" LogicalName="Web/%(RecursiveDir)%(Filename)%(Extension)" />
     <EmbeddedResource Include="..\..\THIRD-PARTY-LICENSES.txt" LogicalName="Licenses" />
     <EmbeddedResource Include="..\..\LICENSE" LogicalName="OwnLicense" />
     <EmbeddedResource Include="app.ico" LogicalName="AppIcon" />
+    <EmbeddedResource Include="tray.ico" LogicalName="TrayIcon" />
   </ItemGroup>
   <Target Name="RemoveUnusedWebViewWpfReference" BeforeTargets="ResolveAssemblyReferences">
     <ItemGroup><Reference Remove="@(Reference)" Condition="'%(Reference.Filename)' == 'Microsoft.Web.WebView2.Wpf'" /></ItemGroup>

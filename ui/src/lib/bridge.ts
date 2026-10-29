@@ -1,4 +1,5 @@
 import packageInfo from "../../package.json";
+import features from "../../../features.json";
 export const appVersion = packageInfo.version;
 
 export type DisplaySetting = {
@@ -98,6 +99,7 @@ export function profileAudioName(
 export type Preferences = {
   theme: "system" | "dark" | "light";
   startWithWindows: boolean;
+  startMinimized: boolean;
   closeToTray: boolean;
   nextAudioShortcut: string | null;
   previousAudioShortcut: string | null;
@@ -243,6 +245,11 @@ export async function call<T = unknown>(
   method: string,
   payload: unknown = null,
 ): Promise<T> {
+  if (
+    !features.liveMonitorAlignment &&
+    (method === "beginAlignment" || method === "updateAlignment")
+  )
+    throw new Error("Der Live-Höhenabgleich ist vorübergehend deaktiviert.");
   if (!window.chrome?.webview) return demoCall(method, payload) as T;
   const id = crypto.randomUUID();
   return new Promise<T>((resolve, reject) => {
@@ -261,6 +268,7 @@ const defaultSettings: Settings = {
   preferences: {
     theme: "system",
     startWithWindows: false,
+    startMinimized: true,
     closeToTray: true,
     nextAudioShortcut: null,
     previousAudioShortcut: null,
@@ -495,13 +503,24 @@ let demoHomeAssistant: HomeAssistantInfo = {
   availableSetups: [],
 };
 let demoUpdates: UpdateInfo = {
-  currentVersion: appVersion, status: "demo", message: "Demo – keine Update-Verbindung.", automatic: true,
-  lastChecked: null, latestVersion: null, releaseUrl: null, progress: null,
+  currentVersion: appVersion,
+  status: "demo",
+  message: "Demo – keine Update-Verbindung.",
+  automatic: true,
+  lastChecked: null,
+  latestVersion: null,
+  releaseUrl: null,
+  progress: null,
 };
 async function demoCall(method: string, payload: any): Promise<any> {
-  if (method === "updates" || method === "checkUpdate") return structuredClone(demoUpdates);
-  if (method === "updateAutomatic") { demoUpdates = { ...demoUpdates, automatic: !!payload }; return structuredClone(demoUpdates); }
-  if (method === "installUpdate") throw new Error("In der Demo werden keine Updates installiert.");
+  if (method === "updates" || method === "checkUpdate")
+    return structuredClone(demoUpdates);
+  if (method === "updateAutomatic") {
+    demoUpdates = { ...demoUpdates, automatic: !!payload };
+    return structuredClone(demoUpdates);
+  }
+  if (method === "installUpdate")
+    throw new Error("In der Demo werden keine Updates installiert.");
   if (method === "homeAssistantSettings")
     return structuredClone(demoHomeAssistant);
   if (method === "saveHomeAssistant") {

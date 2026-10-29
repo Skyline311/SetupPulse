@@ -62,6 +62,10 @@ Review diagnostic output before attaching it to an issue: it can include device 
 - Follow `.editorconfig`. Format changed frontend files with the installed Prettier, for example `npx prettier --write src/App.tsx` from `ui`.
 - Keep dependency lockfiles and license notices current. Explain new dependencies and their purpose in the pull request.
 
+The tray artwork source is `assets/branding/setuppulse-tray.svg`. After changing it, run `node scripts/export-tray-icon.mjs` with the UI Playwright browser installed to regenerate `src/SetupPulse.App/tray.ico`. The generated ICO is committed, so ordinary builds do not require a browser or a runtime SVG library.
+
+GitHub Actions validates pull requests and pushes to `main`. Run **Windows build** manually with **Upload artifacts** enabled when you need downloadable CI ZIPs and test reports. Routine validation keeps its logs without uploading these optional files; tagged release drafts retain their required package uploads.
+
 ## Validation
 
 Core tests run against fake hardware and must not change real devices. Playwright tests use the browser simulation. Add a regression test for changed behavior where it can catch a real failure; documentation-only edits normally need link and wording checks rather than new tests.

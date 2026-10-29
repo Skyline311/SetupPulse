@@ -21,7 +21,6 @@ _Example with simulated devices. New installations start without saved setups._
 - **Audio favorites:** choose playback, microphone, and communication devices, with optional volume and mute settings. Use them independently or link them to a setup.
 - **Audio mixer:** device and app volume/mute, grouped app sessions, level meters, and per-app output routing. Click the tray icon for a quick mixer; optionally enable tray-wheel volume and custom mixer shortcuts.
 - **Global shortcuts:** switch setups and audio favorites without opening the app. Number-pad keys are supported separately from the number row.
-- **Live height adjustment:** adjust vertical monitor positions while checking the mouse transition across screen edges. [See an example](docs/images/live-alignment-demo.png).
 - **Dark tray menu:** see the current matching setups, audio favorites, and their saved shortcuts.
 - **Home Assistant:** optional MQTT discovery, independent setup/audio selection from dashboards or Zigbee-button automations, and switch/error feedback. [Setup guide](docs/HOME-ASSISTANT.md).
 - **Updates:** check for public stable GitHub Releases and install them from the app, with package verification and preserved settings. [Update guide](docs/UPDATES.md).
@@ -43,15 +42,15 @@ With a package:
 
 Confirmed monitor layouts switch directly on later uses. For example, `Ctrl+Alt+Num2` uses the number pad; `Ctrl+Alt+2` uses the number row.
 
-For displays at different heights, edit a setup under **Setups** and choose **Monitorhöhe live abgleichen**. Negative Y moves a display up; positive Y moves it down. Check the mouse transition and choose **Anordnung behalten**. Cancel or 90 seconds without another change or confirmation restores the original layout. Confirmed heights return to the setup draft; choose **Setup speichern** to recall them later.
+For displays at different heights, edit a setup under **Setups** and adjust its X/Y positions. Negative Y moves a display up; positive Y moves it down. Save and activate the setup to apply the layout. Live height adjustment is temporarily unavailable.
 
-Closing the window normally leaves the app in the tray. A single left click opens a compact quick-mixer window at the tray after the short double-click interval; a double-click opens the main window. Escape or clicking elsewhere closes the quick mixer; **Voller Mixer** opens **Audio-Mixer**. Use **Tray → Beenden** to exit completely. Autostart opens the app without switching setups; waking the PC also does not apply a setup automatically.
+Closing the window normally leaves the app in the tray, represented by white exchange arrows on a transparent background. A single left click opens a compact quick-mixer window at the tray after the short double-click interval; a double-click opens the main window. Escape or clicking elsewhere closes the quick mixer; **Voller Mixer** opens **Audio-Mixer**. Use **Tray → Beenden** to exit completely. Under **Einstellungen → Bearbeiten**, enable **Mit Windows starten** and choose **Beim Windows-Start minimiert starten** to keep the main window hidden at sign-in. Manual launches open the main window. Starting the app or waking Windows does not apply a setup automatically.
 
 Under **Audio-Mixer**, adjust devices and running apps or choose an app's output. **Windows-Standard** removes its fixed output assignment. Some apps adopt a new output only when their audio playback restarts. Mixer polling pauses outside a mixer view and while the window is hidden. Tray-wheel control and additional shortcuts are optional under **Einstellungen**.
 
 ## Status and help
 
-**Early preview · 0.4.2.** Builds are unsigned and need broader hardware testing. Recovery depends on Windows, drivers, and connected devices. The current interface is in German. Settings show physical Bluetooth adapters and their Windows status; adapter switching is not included.
+**Early preview · 0.4.6.** Builds are unsigned and need broader hardware testing. Recovery depends on Windows, drivers, and connected devices. The current interface is in German. Settings show physical Bluetooth adapters and their Windows status; adapter switching is not included.
 
 For device compatibility, settings, and recovery, see [Troubleshooting](docs/TROUBLESHOOTING.md). Report problems using the repository's issue templates; security reports are covered by [SECURITY.md](SECURITY.md).
 
