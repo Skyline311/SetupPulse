@@ -19,8 +19,8 @@ internal sealed partial class MainWindow : Form
     readonly DemoMixer? demoMixer;
     readonly bool demo, startHidden;
     readonly WebView2 web = new() { Dock = DockStyle.Fill };
-    readonly NotifyIcon tray = new() { Icon = SystemIcons.Application, Text = "SetupPulse", Visible = true };
-    readonly Icon appIcon;
+    readonly NotifyIcon tray = new() { Text = "SetupPulse" };
+    readonly Icon appIcon, trayIcon;
     readonly System.Windows.Forms.Timer refresh = new() { Interval = 10000 };
     readonly System.Windows.Forms.Timer volumeRefresh = new() { Interval = 300 };
     readonly TrayClickActions trayClicks;
@@ -38,6 +38,8 @@ internal sealed partial class MainWindow : Form
     string? requestedView;
     TrayMixerWindow? quickMixerWindow;
     bool movingSurface, mainVisibleBeforeMixer, passiveRestore;
+    bool initialVisibilityPending = true, startupInitialized;
+    Task? webInitialization;
     [DllImport("user32.dll", SetLastError = true)] static extern bool RegisterHotKey(IntPtr hwnd, int id, uint modifiers, uint key);
     [DllImport("user32.dll")] static extern bool UnregisterHotKey(IntPtr hwnd, int id);
     public MainWindow(Store store, bool demo, bool startHidden)
@@ -50,9 +52,9 @@ internal sealed partial class MainWindow : Form
         InitializeUpdates();
         Text = demo ? "SetupPulse · Demo" : "SetupPulse"; Size = new(1240, 860); MinimumSize = new(960, 680); StartPosition = FormStartPosition.CenterScreen; BackColor = Color.FromArgb(23, 23, 23);
         using (var iconStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("AppIcon")!) appIcon = new Icon(iconStream);
-        Icon = appIcon; tray.Icon = appIcon;
+        Icon = appIcon; trayIcon = TrayIconArtwork.Create(); tray.Icon = trayIcon; tray.Visible = true;
         Controls.Add(web);
-        Shown += async (_, _) => { if (startHidden) Hide(); await InitializeWeb(); };
+        Shown += async (_, _) => await InitializeWebOnce();
         FormClosing += (_, e) => { if (!exiting && settings.Preferences.CloseToTray) { e.Cancel = true; Hide(); } };
         // NotifyIcon sets its double-click flag after this callback returns.
         // Showing/reparenting windows here can pump the release message too early.
@@ -65,17 +67,39 @@ internal sealed partial class MainWindow : Form
         refresh.Tick += async (_, _) => { if (!busy) await SendState(); };
         volumeRefresh.Tick += async (_, _) => { volumeRefresh.Stop(); if (busy) volumeRefresh.Start(); else await SendState(); };
         SystemEvents.PowerModeChanged += PowerChanged;
-        Load += (_, _) => {
-            try { RegisterShortcuts(settings); } catch (Exception e) { tray.ShowBalloonTip(6000, "Shortcut nicht verfügbar", e.Message, ToolTipIcon.Warning); }
-            if (!demo && settings.Preferences.StartWithWindows) {
-                try { SetAutostart(true); } catch (Exception e) { tray.ShowBalloonTip(6000, "Autostart nicht aktualisiert", e.Message, ToolTipIcon.Warning); }
-            }
-            RebuildTray();
-            try { UpdateTrayScroll(); } catch (Exception e) { tray.ShowBalloonTip(6000, "Tray-Lautstärke nicht verfügbar", e.Message, ToolTipIcon.Warning); }
-            StartHomeAssistant();
-            _ = StartUpdateCheck();
-        };
+        Load += (_, _) => InitializeStartup();
         _ = ListenForInstance();
+    }
+    void InitializeStartup()
+    {
+        if (startupInitialized) return;
+        startupInitialized = true;
+        try { RegisterShortcuts(settings); } catch (Exception e) { tray.ShowBalloonTip(6000, "Shortcut nicht verfügbar", e.Message, ToolTipIcon.Warning); }
+        if (!demo && settings.Preferences.StartWithWindows) {
+            try { SetAutostart(true); } catch (Exception e) { tray.ShowBalloonTip(6000, "Autostart nicht aktualisiert", e.Message, ToolTipIcon.Warning); }
+        }
+        RebuildTray();
+        try { UpdateTrayScroll(); } catch (Exception e) { tray.ShowBalloonTip(6000, "Tray-Lautstärke nicht verfügbar", e.Message, ToolTipIcon.Warning); }
+        StartHomeAssistant();
+        _ = StartUpdateCheck();
+    }
+    Task InitializeWebOnce() => webInitialization ??= InitializeWeb();
+    protected override void SetVisibleCore(bool value)
+    {
+        if (value && initialVisibilityPending)
+        {
+            initialVisibilityPending = false;
+            if (startHidden)
+            {
+                // Create the message/hotkey handle without ever showing the form.
+                _ = Handle;
+                InitializeStartup();
+                _ = InitializeWebOnce();
+                base.SetVisibleCore(false);
+                return;
+            }
+        }
+        base.SetVisibleCore(value);
     }
     void PowerChanged(object sender, PowerModeChangedEventArgs e) { if (e.Mode == PowerModes.Resume && IsHandleCreated) BeginInvoke(async () => await SendState()); }
     protected override bool ShowWithoutActivation => passiveRestore || base.ShowWithoutActivation;
@@ -245,7 +269,7 @@ internal sealed partial class MainWindow : Form
     static void SetAutostart(bool enabled)
     {
         using var key = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run");
-        if (enabled) key.SetValue("SetupPulse", $"\"{Environment.ProcessPath}\" --tray"); else key.DeleteValue("SetupPulse", false);
+        if (enabled) key.SetValue("SetupPulse", $"\"{Environment.ProcessPath}\" {StartupBehavior.AutostartArgument}"); else key.DeleteValue("SetupPulse", false);
         key.DeleteValue(RuntimeIdentity.LegacyAppName, false);
     }
     async Task<T> Run<T>(Func<T> action, bool mixerAction = false)
@@ -468,7 +492,7 @@ internal sealed partial class MainWindow : Form
                 Cleanup(volumeRefresh.Dispose);
                 Cleanup(trayClicks.Dispose);
                 foreach (var id in hotkeys.Keys) if (IsHandleCreated) UnregisterHotKey(Handle, id);
-                Cleanup(tray.Dispose); Cleanup(appIcon.Dispose); Cleanup(web.Dispose); Cleanup(() => quickMixerWindow?.Dispose()); Cleanup(shutdown.Dispose);
+                Cleanup(tray.Dispose); Cleanup(trayIcon.Dispose); Cleanup(appIcon.Dispose); Cleanup(web.Dispose); Cleanup(() => quickMixerWindow?.Dispose()); Cleanup(shutdown.Dispose);
             }
         }
         finally { base.Dispose(disposing); }

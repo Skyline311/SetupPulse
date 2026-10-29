@@ -76,10 +76,12 @@ internal static class Program
         using var single = new Mutex(true, demo ? RuntimeIdentity.DemoMutex : RuntimeIdentity.InstanceMutex, out bool first);
         if (!first)
         {
+            if (args.Contains(StartupBehavior.AutostartArgument) || args.Contains("--tray")) return;
             try { using var client = new NamedPipeClientStream(".", demo ? RuntimeIdentity.DemoPipe : RuntimeIdentity.ShowPipe, PipeDirection.Out); client.Connect(1500); client.WriteByte(1); } catch (IOException) { }
             return;
         }
-        try { Application.Run(new MainWindow(demo ? new Store(Path.Combine(DataPath, "Demo")) : store, demo, args.Contains("--tray"))); }
+        var appStore = demo ? new Store(Path.Combine(DataPath, "Demo")) : store;
+        try { Application.Run(new MainWindow(appStore, demo, StartupBehavior.StartHidden(args, appStore.Load().Preferences))); }
         catch (Exception e) { MessageBox.Show(e.Message, "SetupPulse", MessageBoxButtons.OK, MessageBoxIcon.Error); }
     }
 }

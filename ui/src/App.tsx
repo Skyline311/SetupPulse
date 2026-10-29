@@ -1018,7 +1018,7 @@ export default function App() {
                     <div>
                       <strong>Deine Einstellungen</strong>
                       <p className="text-xs">
-                        Autostart startet im Tray, ohne Setup-Wechsel.
+                        Windows-Start und Startverhalten festlegen.
                       </p>
                     </div>
                     <Button
@@ -1780,7 +1780,7 @@ export default function App() {
                 </select>
               </Field>
               <div className="row">
-                <label>Mit Windows im Tray starten</label>
+                <label>Mit Windows starten</label>
                 <Switch
                   aria-label="Autostart"
                   checked={preferences.startWithWindows}
@@ -1789,6 +1789,21 @@ export default function App() {
                   }
                 />
               </div>
+              <div className="row gap-3">
+                <label>Beim Windows-Start minimiert starten</label>
+                <Switch
+                  aria-label="Minimierter Windows-Start"
+                  disabled={!preferences.startWithWindows}
+                  checked={preferences.startMinimized ?? true}
+                  onCheckedChange={(on) =>
+                    setPreferences({ ...preferences, startMinimized: on })
+                  }
+                />
+              </div>
+              <p className="helper">
+                Bei aktivierter Option läuft SetupPulse nur im Infobereich neben
+                der Uhr. Beim manuellen Öffnen erscheint das Hauptfenster.
+              </p>
               <div className="row">
                 <label>Beim Schließen im Tray bleiben</label>
                 <Switch

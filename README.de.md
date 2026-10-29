@@ -44,13 +44,13 @@ Bereits bestätigte Monitoranordnungen wechseln später direkt. Beispielsweise v
 
 Für unterschiedlich hohe Bildschirme bearbeitest du unter **Setups** die X-/Y-Positionen. Negatives Y verschiebt einen Monitor nach oben, positives Y nach unten. Speichere und aktiviere das Setup, um die Anordnung anzuwenden. Der Live-Höhenabgleich ist vorübergehend nicht verfügbar.
 
-Das Schließen des Fensters lässt die App normalerweise im Tray laufen. Ein einzelner Linksklick öffnet nach der kurzen Doppelklick-Frist ein kleines Schnellmixer-Fenster am Tray; ein Doppelklick öffnet das Hauptfenster. Escape oder ein Klick außerhalb schließt den Schnellmixer; **Voller Mixer** öffnet **Audio-Mixer**. Vollständig beenden über **Tray → Beenden**. Autostart öffnet die App ohne Setup-Wechsel; auch beim Aufwachen wird kein Setup automatisch angewendet.
+Das Schließen des Fensters lässt die App normalerweise im Tray laufen, erkennbar am weißen Pulse-Pfeil-Symbol auf transparentem Hintergrund. Ein einzelner Linksklick öffnet nach der kurzen Doppelklick-Frist ein kleines Schnellmixer-Fenster am Tray; ein Doppelklick öffnet das Hauptfenster. Escape oder ein Klick außerhalb schließt den Schnellmixer; **Voller Mixer** öffnet **Audio-Mixer**. Vollständig beenden über **Tray → Beenden**. Unter **Einstellungen → Bearbeiten** lassen sich **Mit Windows starten** und **Beim Windows-Start minimiert starten** einstellen. Beim manuellen Öffnen erscheint das Hauptfenster. Beim Starten oder Aufwachen wird kein Setup automatisch angewendet.
 
 Unter **Audio-Mixer** regelst du Geräte und laufende Apps oder wählst deren Ausgabe. **Windows-Standard** entfernt die feste App-Zuordnung. Manche Apps übernehmen einen neuen Ausgang erst beim nächsten Start ihrer Audiowiedergabe. Die Mixer-Abfragen pausieren außerhalb einer Mixeransicht und bei verborgenem Fenster. Tray-Mausrad und zusätzliche Shortcuts sind unter **Einstellungen** optional aktivierbar.
 
 ## Stand und Hilfe
 
-**Frühe Vorschau · 0.4.4.** Builds sind nicht signiert und benötigen breitere Hardwaretests. Wiederherstellung hängt von Windows, Treibern und angeschlossenen Geräten ab. Die Oberfläche ist derzeit deutschsprachig. Unter Einstellungen werden physische Bluetooth-Adapter und ihr Windows-Status angezeigt; Adapter-Umschaltung ist nicht enthalten.
+**Frühe Vorschau · 0.4.6.** Builds sind nicht signiert und benötigen breitere Hardwaretests. Wiederherstellung hängt von Windows, Treibern und angeschlossenen Geräten ab. Die Oberfläche ist derzeit deutschsprachig. Unter Einstellungen werden physische Bluetooth-Adapter und ihr Windows-Status angezeigt; Adapter-Umschaltung ist nicht enthalten.
 
 Hinweise zu Gerätekompatibilität, Einstellungen und Wiederherstellung stehen unter [Fehlersuche](docs/TROUBLESHOOTING.md) auf Englisch. Für Fehlerberichte die Issue-Vorlagen verwenden; Sicherheitsmeldungen sind in [SECURITY.md](SECURITY.md) beschrieben.
 

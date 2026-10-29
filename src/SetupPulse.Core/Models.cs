@@ -18,7 +18,7 @@ public record EndpointSetting(string DeviceId, float? Volume = null, bool? Muted
 public record AudioFavorite(string Id, string Name, EndpointSetting? Output = null, EndpointSetting? Input = null, string? CommunicationsOutput = null, string? CommunicationsInput = null, string? Shortcut = null);
 public record ProfileAudio(EndpointSetting? Output = null, EndpointSetting? Input = null, string? Name = null);
 public record SetupProfile(string Id, string Name, List<DisplaySetting>? Monitors = null, string? AudioFavoriteId = null, string? Shortcut = null, string? VerifiedHash = null, ProfileAudio? Audio = null);
-public record Preferences(string Theme = "system", bool StartWithWindows = false, bool CloseToTray = true, string? NextAudioShortcut = null, string? PreviousAudioShortcut = null, string? RescueShortcut = null, string? MixerShortcut = null, string? QuickMixerShortcut = null, string? SettingsShortcut = null, string? VolumeUpShortcut = null, string? VolumeDownShortcut = null, bool TrayScrollVolume = false, bool LogarithmicVolume = false);
+public record Preferences(string Theme = "system", bool StartWithWindows = false, bool CloseToTray = true, string? NextAudioShortcut = null, string? PreviousAudioShortcut = null, string? RescueShortcut = null, string? MixerShortcut = null, string? QuickMixerShortcut = null, string? SettingsShortcut = null, string? VolumeUpShortcut = null, string? VolumeDownShortcut = null, bool TrayScrollVolume = false, bool LogarithmicVolume = false, bool StartMinimized = true);
 public record Settings(int Version, List<SetupProfile> Profiles, List<AudioFavorite> AudioFavorites, Preferences Preferences)
 {
     public static Settings Empty => new(1, [], [], new());
