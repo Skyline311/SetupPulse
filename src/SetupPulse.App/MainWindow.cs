@@ -240,6 +240,7 @@ internal sealed partial class MainWindow : Form
         if (transaction?.Phase is "rolledBack" or "failed" && transaction.ProfileId == activeProfile) activeProfile = null;
         string? warning = store.RecoveryWarning ?? (transaction?.Phase is "failed" or "rolledBack" && !string.IsNullOrWhiteSpace(transaction.Error)
             ? (transaction.Phase == "rolledBack" ? "Letzter Wechsel fehlgeschlagen; vorheriger Zustand wiederhergestellt: " : "Letzter Wechsel fehlgeschlagen: ") + transaction.Error : null);
+        if (transaction?.Phase is "pending" or "confirmed") warning ??= transaction.Warning;
         var inventory = await Task.Run(hardware.Inventory);
         trayInventory = inventory; UpdateTrayChecks();
         UpdateHomeAssistantState(inventory, transaction);
@@ -282,6 +283,8 @@ internal sealed partial class MainWindow : Form
     {
         var p = settings.Profiles.Single(p => p.Id == id); var f = ProfileAudioSelection.Resolve(p, settings);
         var t = await Run(() => engine.Apply(p, f).GetAwaiter().GetResult()); activeProfile = id;
+        if (store.Read<Transaction>("transaction.json")?.Warning is { } warning)
+            tray.ShowBalloonTip(6000, "Audio nicht gewechselt", warning, ToolTipIcon.Warning);
         if (t != null) ShowWindow(); return t;
     }
     async Task<object?> ApplyAudio(string id) { var f = settings.AudioFavorites.Single(f => f.Id == id); return await Run(() => engine.Apply(null, f).GetAwaiter().GetResult()); }

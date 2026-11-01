@@ -60,8 +60,8 @@ public sealed class SwitchEngine(IHardware hardware, Store store, Action<string>
             bool needsTest = displays != null && profile!.VerifiedHash != hash;
             // All display transitions are guarded, including previously verified profiles.
             // Only snapshot displays for rollback when this transaction will actually change them.
-            var transaction = new Transaction(Guid.NewGuid().ToString("N"), "pending", DateTimeOffset.UtcNow.AddSeconds(90), changeDisplays ? before : null, inventory.Audio, profile?.Id, hash, RequestedDisplays: displays);
-            if (before != null && store.Read<Transaction>("last-good.json") == null) store.Write("last-good.json", transaction with { Phase = "confirmed", Displays = before, ProfileId = null, Hash = Validation.MonitorHash(before) });
+            var transaction = new Transaction(Guid.NewGuid().ToString("N"), "pending", DateTimeOffset.UtcNow.AddSeconds(90), changeDisplays ? before : null, inventory.Audio, profile?.Id, hash, RequestedDisplays: displays, Applying: true);
+            if (before != null && store.Read<Transaction>("last-good.json") == null) store.Write("last-good.json", transaction with { Phase = "confirmed", Applying = false, Displays = before, ProfileId = null, Hash = Validation.MonitorHash(before) });
             store.Write("transaction.json", transaction);
             bool mutated = false;
             try
@@ -76,16 +76,24 @@ public sealed class SwitchEngine(IHardware hardware, Store store, Action<string>
                         token.ThrowIfCancellationRequested();
                         try { mutated = true; hardware.ApplyAudio(favorite); break; }
                         catch (DeviceUnavailableException) when (DateTimeOffset.UtcNow < until) { await Task.Delay(500, token); }
+                        catch (DeviceUnavailableException e) when (displays != null)
+                        {
+                            // HDMI audio can remain unavailable even after its display is ready.
+                            // Keep the display transition and saved audio selection independent.
+                            transaction = transaction with { Warning = $"Monitorwechsel fortgesetzt. Die gespeicherte Audioauswahl konnte nicht angewendet werden: {e.Message}" };
+                            break;
+                        }
                     }
                 }
                 if (needsTest)
                 {
-                    var ready = transaction with { Deadline = DateTimeOffset.UtcNow.AddSeconds(90) };
+                    var ready = transaction with { Applying = false, Deadline = DateTimeOffset.UtcNow.AddSeconds(90) };
                     store.Write("transaction.json", ready);
                     return ready;
                 }
-                store.Write("transaction.json", transaction with { Phase = "confirmed" });
-                if (displays != null) store.Write("last-good.json", transaction with { Displays = displays, Audio = hardware.AudioInventory() });
+                var completed = transaction with { Phase = "confirmed", Applying = false };
+                store.Write("transaction.json", completed);
+                if (displays != null) store.Write("last-good.json", completed with { Displays = displays, Audio = hardware.AudioInventory() });
                 return null;
             }
             catch (Exception e)
@@ -109,6 +117,7 @@ public sealed class SwitchEngine(IHardware hardware, Store store, Action<string>
     public Transaction Confirm(string id)
     {
         var t = Pending ?? throw new InvalidOperationException("Kein Monitortest aktiv.");
+        if (Busy || t.Applying) throw new InvalidOperationException("Der Monitorwechsel wird noch angewendet. Bitte warten.");
         if (t.Id != id || DateTimeOffset.UtcNow >= t.Deadline) throw new InvalidOperationException("Monitortest abgelaufen.");
         var current = hardware.Inventory();
         var displays = current.Displays.Where(x => x.Active).Select(x => x.Current!).ToList();

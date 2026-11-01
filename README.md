@@ -42,6 +42,8 @@ With a package:
 
 Confirmed monitor layouts switch directly on later uses. For example, `Ctrl+Alt+Num2` uses the number pad; `Ctrl+Alt+2` uses the number row.
 
+If a setup's audio device remains unavailable, the monitor switch continues with a warning and keeps its saved audio assignment for later use. Confirmation controls appear once the switch is ready.
+
 For displays at different heights, edit a setup under **Setups** and adjust its X/Y positions. Negative Y moves a display up; positive Y moves it down. Save and activate the setup to apply the layout. Live height adjustment is temporarily unavailable.
 
 Closing the window normally leaves the app in the tray, represented by white exchange arrows on a transparent background. A single left click opens a compact quick-mixer window at the tray after the short double-click interval; a double-click opens the main window. Escape or clicking elsewhere closes the quick mixer; **Voller Mixer** opens **Audio-Mixer**. Use **Tray → Beenden** to exit completely. Under **Einstellungen → Bearbeiten**, enable **Mit Windows starten** and choose **Beim Windows-Start minimiert starten** to keep the main window hidden at sign-in. Manual launches open the main window. Starting the app or waking Windows does not apply a setup automatically.
@@ -50,7 +52,7 @@ Under **Audio-Mixer**, adjust devices and running apps or choose an app's output
 
 ## Status and help
 
-**Early preview · 0.4.6.** Builds are unsigned and need broader hardware testing. Recovery depends on Windows, drivers, and connected devices. The current interface is in German. Settings show physical Bluetooth adapters and their Windows status; adapter switching is not included.
+**Early preview · 0.4.7.** Builds are unsigned and need broader hardware testing. Recovery depends on Windows, drivers, and connected devices. The current interface is in German. Settings show physical Bluetooth adapters and their Windows status; adapter switching is not included.
 
 For device compatibility, settings, and recovery, see [Troubleshooting](docs/TROUBLESHOOTING.md). Report problems using the repository's issue templates; security reports are covered by [SECURITY.md](SECURITY.md).
 
