@@ -460,6 +460,7 @@ export default function App() {
     );
   const { settings, inventory } = state;
   const disabled = working || state.busy || !!state.pending;
+  const applyingMonitor = working || state.busy || !!state.pending?.applying;
   const current = inventory.displays
     .filter((d) => d.active)
     .map((d) => d.current!);
@@ -1932,6 +1933,7 @@ export default function App() {
               state.pending &&
               !working &&
               !state.busy &&
+              !state.pending.applying &&
               seconds > 0
             ) {
               e.preventDefault();
@@ -1941,38 +1943,36 @@ export default function App() {
         >
           <DialogHeader>
             <DialogTitle>
-              {working || state.busy
+              {applyingMonitor
                 ? "Monitorwechsel wird angewendet …"
                 : "Ist das Bild richtig?"}
             </DialogTitle>
             <DialogDescription>
-              {working || state.busy
+              {applyingMonitor
                 ? "Windows übernimmt die Monitor- und Audioeinstellungen. Die Bestätigung wird danach freigegeben."
                 : "Bestätige diese Monitoranordnung. Ohne Bestätigung wird der vorherige Zustand wiederhergestellt."}
             </DialogDescription>
           </DialogHeader>
-          {!(working || state.busy) && (
+          {!applyingMonitor && (
             <div className="text-center text-5xl font-semibold py-5">
               {seconds}
               <span className="text-base text-muted-foreground"> s</span>
             </div>
           )}
-          <DialogFooter>
-            <Button
-              variant="outline"
-              disabled={working || state.busy}
-              onClick={() => action("rollback")}
-            >
-              Zurücksetzen
-            </Button>
-            <Button
-              autoFocus
-              disabled={working || state.busy || seconds <= 0}
-              onClick={() => action("confirm", state.pending!.id)}
-            >
-              Behalten · Enter
-            </Button>
-          </DialogFooter>
+          {!applyingMonitor && (
+            <DialogFooter>
+              <Button variant="outline" onClick={() => action("rollback")}>
+                Zurücksetzen
+              </Button>
+              <Button
+                autoFocus
+                disabled={seconds <= 0}
+                onClick={() => action("confirm", state.pending!.id)}
+              >
+                Behalten · Enter
+              </Button>
+            </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
     </div>

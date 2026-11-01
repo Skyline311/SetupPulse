@@ -104,6 +104,59 @@ public sealed class EngineTests : IDisposable
         var hardware = new FakeHardware { MissingAttempts = 1 }; var engine = new SwitchEngine(hardware, Store, _ => { });
         Assert.NotNull(await engine.Apply(new("p", "TV", [Screen("tv")]), Favorite)); Assert.Equal(2, hardware.AudioWrites);
     }
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task MissingProfileAudioKeepsDisplaySwitchAndSavedSelection(bool verified)
+    {
+        var hardware = new FakeHardware { MissingAttempts = int.MaxValue };
+        var engine = new SwitchEngine(hardware, Store, _ => { });
+        var displays = new List<DisplaySetting> { Screen("tv") };
+        var profile = new SetupProfile("tv", "TV", displays, Audio: new(new("missing-tv")),
+            VerifiedHash: verified ? Validation.MonitorHash(displays) : null);
+        var settings = Settings.Empty with { Profiles = [profile] };
+        Store.Write("settings.json", settings);
+        var audioBefore = hardware.Audio.ToList();
+        var pending = await engine.Apply(profile, ProfileAudioSelection.Resolve(profile, settings));
+        Assert.Equal("tv", hardware.Displays.Single().DeviceId);
+        Assert.Equal(1, hardware.DisplayWrites); Assert.Equal(0, hardware.Restores);
+        Assert.Equal(audioBefore, hardware.Audio);
+        Assert.Equal("missing-tv", Store.Load().Profiles.Single().Audio!.Output!.DeviceId);
+        if (verified) Assert.Null(pending);
+        else
+        {
+            Assert.NotNull(pending); Assert.False(pending.Applying);
+            Assert.InRange((pending.Deadline - DateTimeOffset.UtcNow).TotalSeconds, 85, 90);
+            Assert.NotNull(pending.Warning); engine.Confirm(pending.Id);
+        }
+        var completed = Store.Read<Transaction>("transaction.json")!;
+        Assert.Equal("confirmed", completed.Phase); Assert.False(completed.Applying);
+        Assert.Null(completed.Error); Assert.Contains("HDMI initializing", completed.Warning);
+        Assert.Null(engine.Pending); Assert.Equal(completed.Warning, Store.Read<Transaction>("last-good.json")!.Warning);
+    }
+    [Fact]
+    public async Task MissingStandaloneAudioRemainsAnErrorAndNeverChangesDisplays()
+    {
+        var hardware = new FakeHardware { MissingAttempts = int.MaxValue };
+        var engine = new SwitchEngine(hardware, Store, _ => { });
+        await Assert.ThrowsAsync<DeviceUnavailableException>(() => engine.Apply(null, Favorite));
+        Assert.Equal(1, hardware.AudioWrites); Assert.Equal(0, hardware.DisplayWrites);
+        Assert.Equal("rolledBack", Store.Read<Transaction>("transaction.json")!.Phase);
+        Assert.Null(Store.Read<Transaction>("transaction.json")!.Warning);
+    }
+    [Fact]
+    public async Task ApplyingTransactionCannotBeConfirmedBeforeAudioHasFinished()
+    {
+        var hardware = new FakeHardware { MissingAttempts = 1 };
+        var engine = new SwitchEngine(hardware, Store, _ => { });
+        var running = engine.Apply(new("tv", "TV", [Screen("tv")]), Favorite);
+        var applying = engine.Pending!;
+        Assert.True(applying.Applying);
+        Assert.Throws<InvalidOperationException>(() => engine.Confirm(applying.Id));
+        var ready = (await running)!;
+        Assert.False(ready.Applying); Assert.Null(ready.Warning);
+        engine.Confirm(ready.Id); Assert.Null(engine.Pending);
+    }
     [Fact]
     public async Task PendingTestBlocksFurtherSwitches()
     {

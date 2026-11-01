@@ -186,6 +186,7 @@ export type State = {
     id: string;
     deadline: string;
     liveAlignment?: boolean;
+    applying?: boolean;
     requestedDisplays?: DisplaySetting[];
     displays?: DisplaySetting[];
   } | null;

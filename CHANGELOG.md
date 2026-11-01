@@ -2,6 +2,11 @@
 
 These entries describe local development versions. They are not announcements of published GitHub releases.
 
+## 0.4.7 - 2026-11-01
+
+- Show confirmation buttons and the Enter hint only when the monitor transition is ready. Keep a separate progress message while settings are being applied and reject premature confirmation in the engine.
+- Continue monitor profile switching with a warning if its saved audio device is still unavailable after the HDMI readiness retry. Preserve the saved audio assignment; standalone audio failures and display rollback protections remain unchanged.
+
 ## 0.4.6 - 2026-10-29
 
 - Replace the tray arrows with the selected white Pulse/arrows artwork, based on the original SetupPulse app motif. Keep an SVG master and embed pre-rendered native icon frames for clear rendering at common notification-area sizes.

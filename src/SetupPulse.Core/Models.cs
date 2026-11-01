@@ -24,7 +24,7 @@ public record Settings(int Version, List<SetupProfile> Profiles, List<AudioFavor
     public static Settings Empty => new(1, [], [], new());
 }
 public record Inventory(List<DisplayDevice> Displays, List<AudioDevice> Audio);
-public record Transaction(string Id, string Phase, DateTimeOffset Deadline, List<DisplaySetting>? Displays, List<AudioDevice> Audio, string? ProfileId, string? Hash, string? Error = null, List<DisplaySetting>? RequestedDisplays = null, bool LiveAlignment = false);
+public record Transaction(string Id, string Phase, DateTimeOffset Deadline, List<DisplaySetting>? Displays, List<AudioDevice> Audio, string? ProfileId, string? Hash, string? Error = null, List<DisplaySetting>? RequestedDisplays = null, bool LiveAlignment = false, bool Applying = false, string? Warning = null);
 
 public static class Validation
 {
