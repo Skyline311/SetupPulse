@@ -31,11 +31,11 @@ _Example with simulated devices. New installations start without saved setups._
 
 Requires **Windows 11 x64** and [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
 
-**No download release is available yet.** Download packages will appear under [Releases](https://github.com/Skyline311/SetupPulse/releases). A ready-made package runs without build tools.
+Download [**SetupPulse.exe**](https://github.com/Skyline311/SetupPulse/releases/latest/download/SetupPulse.exe) and run it directly. See [Releases](https://github.com/Skyline311/SetupPulse/releases/latest) for version notes and checksums. No source-code download, build tools or .NET SDK are required.
 
-With a package:
+First run:
 
-1. Extract the ZIP and start **SetupPulse.exe**.
+1. Save **SetupPulse.exe** in a permanent folder and start it.
 2. Choose **Setup erstellen**, adjust the monitors, and optionally select an output device and microphone directly.
 3. Assign a shortcut. Under **Audio**, use **Favorisieren** to optionally save a device with its own name and shortcut.
 4. Click **Setup speichern**, activate the setup, and confirm the picture with **Enter** within 90 seconds.

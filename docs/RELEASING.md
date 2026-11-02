@@ -31,7 +31,7 @@ The project is currently an unsigned early preview. State that in the release no
 
 1. Set the same `X.Y.Z` version in the app project, `ui/package.json`, and its lockfile. Update the changelog, README status, and demo screenshots when the visible interface changes. Commit the final source.
 2. Create a `vX.Y.Z` tag on that commit and push the tag. Alternatively, run **Prepare release draft** for that existing tag.
-3. The workflow validates the version and tag against reviewed `main` history, builds the package, runs core and browser tests, and uploads the ZIP and checksum directly to a **draft** release in the same job. It does not use Actions artifact storage for this transfer. The trusted tag job has release-write permission, and its GitHub token is supplied only to the final draft-upload step. A failed check must not be bypassed for publication.
+3. The workflow validates the version and tag against reviewed `main` history, builds the package, runs core and browser tests, and uploads `SetupPulse.exe`, its `.sha256`, the ZIP and its checksum directly to a **draft** release in the same job. The EXE is the primary end-user download; it embeds its UI, application license and third-party license texts. Retain the ZIP for the existing in-app updater and portable-package users. It does not use Actions artifact storage for this transfer. The trusted tag job has release-write permission, and its GitHub token is supplied only to the final draft-upload step. A failed check must not be bypassed for publication.
 4. Download and check the exact draft package. Record which native and hardware checks above were actually completed, separately from simulated tests. Include outstanding compatibility limits in the release notes.
 
 Do not replace the assets of a published release. Correct the source and publish a new version instead. The workflow refuses to overwrite a published release.
@@ -40,7 +40,7 @@ Do not replace the assets of a published release. Correct the source and publish
 
 Review the release title, notes, ZIP, checksum, and test results, then publish the draft when ready. Use a stable GitHub release for versions that should be offered by the in-app updater. A stable GitHub release can still be clearly described as an unsigned early preview; this does not imply broad hardware certification. Drafts and GitHub prereleases are intentionally excluded from in-app updates. See [Updates](UPDATES.md).
 
-Once the first download is published, replace the temporary no-download notice in both READMEs with the actual release link. Keep any unfinished fresh-Windows or hardware checks explicit; do not describe a browser simulation or a clean CI runner as a completed physical-monitor or standby test.
+Once the first download is published, replace the temporary no-download notice in both READMEs with the direct `releases/latest/download/SetupPulse.exe` link. Verify that this EXE is byte-identical to the one inside the tested ZIP. Keep any unfinished fresh-Windows or hardware checks explicit; do not describe a browser simulation or a clean CI runner as a completed physical-monitor or standby test.
 
 ## Repository and privacy checks
 

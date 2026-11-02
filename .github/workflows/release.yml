@@ -75,5 +75,7 @@ jobs:
             if ($LASTEXITCODE) { throw 'Could not create release draft.' }
           }
           $version = $env:RELEASE_TAG.Substring(1)
-          gh release upload $env:RELEASE_TAG "artifacts/SetupPulse-$version-win-x64.zip" "artifacts/SetupPulse-$version-win-x64.zip.sha256" --clobber
+          $exeHash = (Get-FileHash -LiteralPath 'artifacts/win-x64/SetupPulse.exe' -Algorithm SHA256).Hash.ToLowerInvariant()
+          [System.IO.File]::WriteAllText('artifacts/SetupPulse.exe.sha256', "$exeHash *SetupPulse.exe`n")
+          gh release upload $env:RELEASE_TAG 'artifacts/win-x64/SetupPulse.exe' 'artifacts/SetupPulse.exe.sha256' "artifacts/SetupPulse-$version-win-x64.zip" "artifacts/SetupPulse-$version-win-x64.zip.sha256" --clobber
           if ($LASTEXITCODE) { throw 'Could not upload release assets.' }
