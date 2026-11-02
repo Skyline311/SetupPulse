@@ -31,7 +31,7 @@ _Example with simulated devices. New installations start without saved setups._
 
 Requires **Windows 11 x64** and [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
 
-**No download release is available yet.** Download packages will appear under [Releases](https://github.com/Skyline311/SetupPulse/releases). A ready-made package runs without build tools.
+Download [SetupPulse 0.4.7 for Windows x64](https://github.com/Skyline311/SetupPulse/releases/download/v0.4.7/SetupPulse-0.4.7-win-x64.zip) from [Releases](https://github.com/Skyline311/SetupPulse/releases/latest). Extract the ZIP and start **SetupPulse.exe**. No build tools or .NET SDK are required.
 
 With a package:
 
