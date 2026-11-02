@@ -31,11 +31,11 @@ _Beispiel mit simulierten Geräten. Neue Installationen beginnen ohne gespeicher
 
 Benötigt werden **Windows 11 x64** und die [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
 
-Lade [SetupPulse 0.4.7 für Windows x64](https://github.com/Skyline311/SetupPulse/releases/download/v0.4.7/SetupPulse-0.4.7-win-x64.zip) unter [Releases](https://github.com/Skyline311/SetupPulse/releases/latest) herunter. ZIP entpacken und **SetupPulse.exe** starten. Entwicklungswerkzeuge oder ein .NET SDK werden nicht benötigt.
+Lade [**SetupPulse.exe**](https://github.com/Skyline311/SetupPulse/releases/latest/download/SetupPulse.exe) herunter und starte sie direkt. Versionshinweise und Prüfsummen stehen unter [Releases](https://github.com/Skyline311/SetupPulse/releases/latest). Quellcode, Entwicklungswerkzeuge oder ein .NET SDK werden nicht benötigt.
 
 Mit einem fertigen Paket:
 
-1. ZIP entpacken und **SetupPulse.exe** starten.
+1. **SetupPulse.exe** an einem dauerhaften Ort speichern und starten.
 2. **Setup erstellen** wählen, Monitore einstellen und bei Bedarf Ausgabegerät und Mikrofon direkt auswählen.
 3. Einen Shortcut vergeben. Unter **Audio** lässt sich ein Gerät über **Favorisieren** zusätzlich mit eigenem Namen und Shortcut speichern.
 4. **Setup speichern** anklicken, das Setup aktivieren und das Bild innerhalb von 90 Sekunden mit **Enter** bestätigen.
